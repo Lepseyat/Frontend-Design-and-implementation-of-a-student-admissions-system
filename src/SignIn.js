@@ -2,15 +2,34 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function SignIn() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert(`Email: ${email}\nPassword: ${password}`);
-  };
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 
   const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+    });
+      if (response.ok) {
+        alert('Login successful!');
+        navigate('/dashboard');
+      } else {
+        const errorText = await response.text();
+        setError(errorText);
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again.');
+    }
+  };
 
   const handleGoToRegister = () => {
     navigate('/register');
@@ -21,11 +40,11 @@ function SignIn() {
       <h2>Sign In</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <label style={styles.label}>
-          Email:
+          Username:
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             style={styles.input}
             required
           />
@@ -40,6 +59,7 @@ function SignIn() {
             required
           />
         </label>
+        {error && <p style={styles.error}>{error}</p>}
         <button type="button" onClick={handleGoToRegister} style={styles.button}>
           Register Here
         </button>
@@ -88,6 +108,10 @@ const styles = {
     color: '#fff',
     backgroundColor: '#007bff',
     cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+    fontSize: '0.9rem',
   },
 };
 
