@@ -21,7 +21,7 @@ function SignIn() {
     });
       if (response.ok) {
         alert('Login successful!');
-        navigate('/dashboard');
+        navigate("/exam-scheduler");
       } else {
         const errorText = await response.text();
         setError(errorText);
