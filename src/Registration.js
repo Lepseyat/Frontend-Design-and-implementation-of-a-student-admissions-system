@@ -5,7 +5,7 @@ import axios from 'axios';
 function Registration() {
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
-  const [lastName, setLastName] = useState('');
+  const [lastname, setLastName] = useState('');
   const [egn, setEgn] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ function Registration() {
     const candidateData = {
       name,
       surname,
-      lastName,
+      lastname,
       egn,
       phone,
       email,
@@ -51,7 +51,7 @@ function Registration() {
         <h2>Registration</h2>
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>
-            Username:
+            Name:
             <input
               type="text"
               value={name}
@@ -74,7 +74,7 @@ function Registration() {
             Last Name:
             <input
               type="text"
-              value={lastName}
+              value={lastname}
               onChange={(e) => setLastName(e.target.value)}
               style={styles.input}
               required

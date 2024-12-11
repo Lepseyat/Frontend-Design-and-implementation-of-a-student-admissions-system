@@ -30,10 +30,10 @@ function ExamScheduler() {
     e.preventDefault();
     setError("");
 
-    if (!candidateId) {
-      setError("Candidate ID is missing. Please log in again.");
-      return;
-    }
+    //if (!candidateId) {
+    //  setError("Candidate ID is missing. Please log in again.");
+    //  return;
+    //}
 
     const { subject, examDateTime } = formData;
 
@@ -49,11 +49,18 @@ function ExamScheduler() {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/exam/schedule`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const token = localStorage.getItem("jwt"); // Or however the token is stored after login
+      console.log("JWT Token:", token);
+
+const response = await fetch(`${API_BASE_URL}/api/exam/schedule`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`, // Add the token here
+  },
+  body: JSON.stringify(payload),
+});
+
 
       if (response.ok) {
         alert("Exam scheduled successfully!");
