@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 
-function SignIn() {
+function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
-
+  const API_BASE_URL = 'http://localhost:8080';  // Ensure you're using HTTPS in production
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -17,14 +16,20 @@ function SignIn() {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-    });
+        body: JSON.stringify({ username, password }), // Send both username and password
+      });
+
       if (response.ok) {
+        const { token } = await response.json();
+        localStorage.setItem('jwtToken', token);  // Save JWT token
+        const decodedToken = jwtDecode(token);
+        const userId = decodedToken.userId;  // Extract userId from JWT
+        localStorage.setItem('userId', userId);
         alert('Login successful!');
-        navigate("/exam-scheduler");
+        navigate('/profile');
       } else {
         const errorText = await response.text();
-        setError(errorText);
+        setError(errorText);  // Display error message if login fails
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -37,12 +42,12 @@ function SignIn() {
 
   return (
     <div style={styles.container}>
-      <h2>Sign In</h2>
+      <h2>Log in</h2>
       <form onSubmit={handleSubmit} style={styles.form}>
         <label style={styles.label}>
           Username:
           <input
-            type="username"
+            type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             style={styles.input}
@@ -63,7 +68,7 @@ function SignIn() {
         <button type="button" onClick={handleGoToRegister} style={styles.button}>
           Register Here
         </button>
-        <button type="submit" style={styles.button}>Sign In</button>
+        <button type="submit" style={styles.button}>Log in</button>
       </form>
     </div>
   );
@@ -115,4 +120,4 @@ const styles = {
   },
 };
 
-export default SignIn;
+export default Login;
