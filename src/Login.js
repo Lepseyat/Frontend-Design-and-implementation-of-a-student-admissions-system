@@ -21,18 +21,27 @@ function Login() {
 
       if (response.ok) {
         const { token } = await response.json();
-        localStorage.setItem('jwtToken', token);  // Save JWT token
+        sessionStorage.setItem('jwtToken', token);  // Save JWT token
         const decodedToken = jwtDecode(token);
         const userId = decodedToken.userId;  // Extract userId from JWT
-        localStorage.setItem('userId', userId);
+        const role = decodedToken.role;
+
+        sessionStorage.setItem('userId', userId);
+        sessionStorage.setItem('role', role);
+
         alert('Login successful!');
-        navigate('/profile');
+        if (role === 'ADMIN') {
+          navigate('/admin'); // Redirect to admin panel
+        } else {
+          navigate(`/profile`); // Redirect to user's profile using userId
+        }
+      } else if (response.status === 401) {
+        setError('Invalid credentials. Please try again.');
       } else {
-        const errorText = await response.text();
-        setError(errorText);  // Display error message if login fails
+        setError('An error occurred. Please try again later.');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('Unable to connect to the server. Please try again later.');
     }
   };
 
