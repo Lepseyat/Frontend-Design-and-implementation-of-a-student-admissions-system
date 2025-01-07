@@ -21,10 +21,13 @@ function Login() {
 
       if (response.ok) {
         const { token } = await response.json();
-        sessionStorage.setItem('jwtToken', token);  // Save JWT token
+        localStorage.setItem('jwtToken', token);  // Save JWT token
         const decodedToken = jwtDecode(token);
-        const userId = decodedToken.userId;  // Extract userId from JWT
+        const userId = decodedToken.sub;  // Extract userId from JWT
         const role = decodedToken.role;
+
+        console.log('User ID:', userId); // Print out the userId
+        console.log('Role:', role);  
 
         sessionStorage.setItem('userId', userId);
         sessionStorage.setItem('role', role);
