@@ -1,15 +1,17 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import Dashboard from './Dashboard';
-import Users from './Users';
-import Settings from './Settings';
+import AddExam from './AddExam';
+import ManageExamRequests from './ManageExamRequests';
+import ManageAcceptedExams from './ManageAcceptedExams';
+import ExamRanking from './ExamRanking';
 
 function AdminPanel() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    sessionStorage.clear(); // Clear session storage
-    navigate('/login'); // Redirect to login page
+    sessionStorage.clear();
+    navigate('/login');
   };
 
   return (
@@ -20,11 +22,17 @@ function AdminPanel() {
           <button onClick={() => navigate('/admin/dashboard')} style={styles.button}>
             Dashboard
           </button>
-          <button onClick={() => navigate('/admin/users')} style={styles.button}>
-            Users
+          <button onClick={() => navigate('/admin/add exam')} style={styles.button}>
+            Add an exam
           </button>
-          <button onClick={() => navigate('/admin/settings')} style={styles.button}>
-            Settings
+          <button onClick={() => navigate('/admin/manage exam requests')} style={styles.button}>
+            Manage exams
+          </button>
+          <button onClick={() => navigate('/admin/manage accepted exams')} style={styles.button}>
+            Manage accepted exams
+          </button>
+          <button onClick={() => navigate('/admin/exam ranking')} style={styles.button}>
+            Exam Ranking
           </button>
           <button onClick={handleLogout} style={{ ...styles.button, backgroundColor: 'red' }}>
             Logout
@@ -34,8 +42,10 @@ function AdminPanel() {
       <main style={styles.main}>
         <Routes>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="add exam" element={<AddExam />} />
+          <Route path="manage exam requests" element={<ManageExamRequests />} />
+          <Route path="manage accepted exams" element={<ManageAcceptedExams />} />
+          <Route path="exam ranking" element={<ExamRanking />} />
         </Routes>
       </main>
     </div>

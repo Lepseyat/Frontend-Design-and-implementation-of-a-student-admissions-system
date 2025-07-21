@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root'); // Required for accessibility
 
 function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const API_BASE_URL = 'http://localhost:8080';  // Ensure you're using HTTPS in production
+  const [email, setEmail] = useState('');
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+  const API_BASE_URL = 'http://localhost:8080';
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,28 +22,21 @@ function Login() {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }), // Send both username and password
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
         const { token } = await response.json();
-        localStorage.setItem('jwtToken', token);  // Save JWT token
+        localStorage.setItem('jwtToken', token);
         const decodedToken = jwtDecode(token);
-        const userId = decodedToken.sub;  // Extract userId from JWT
+        const userId = decodedToken.sub;
         const role = decodedToken.role;
-
-        console.log('User ID:', userId); // Print out the userId
-        console.log('Role:', role);  
 
         sessionStorage.setItem('userId', userId);
         sessionStorage.setItem('role', role);
 
         alert('Login successful!');
-        if (role === 'ADMIN') {
-          navigate('/admin'); // Redirect to admin panel
-        } else {
-          navigate(`/profile`); // Redirect to user's profile using userId
-        }
+        navigate(role === 'ADMIN' ? '/admin' : '/profile');
       } else if (response.status === 401) {
         setError('Invalid credentials. Please try again.');
       } else {
@@ -48,8 +47,27 @@ function Login() {
     }
   };
 
-  const handleGoToRegister = () => {
-    navigate('/register');
+  const handleRequestPasswordReset = async () => {
+    setResetMessage('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setResetMessage('Password reset email sent. Check your inbox.');
+      } else {
+        setResetMessage('Failed to send reset email. Try again later.');
+      }
+    } catch (err) {
+      setResetMessage('Network error. Please try again later.');
+    }
+  };
+
+  const handleGoToRegistration = () => {
+    navigate('/registration');
   };
 
   return (
@@ -77,11 +95,52 @@ function Login() {
           />
         </label>
         {error && <p style={styles.error}>{error}</p>}
-        <button type="button" onClick={handleGoToRegister} style={styles.button}>
+        <button type="button" onClick={handleGoToRegistration} style={styles.button}>
           Register Here
         </button>
         <button type="submit" style={styles.button}>Log in</button>
+        <button
+          type="button"
+          onClick={() => setShowResetModal(true)}
+          style={{ ...styles.button, backgroundColor: '#6c757d' }}
+        >
+          Forgot Password?
+        </button>
       </form>
+
+      <Modal
+        isOpen={showResetModal}
+        onRequestClose={() => setShowResetModal(false)}
+        contentLabel="Reset Password"
+        style={{
+          content: {
+            width: '400px',
+            margin: 'auto',
+            padding: '2rem',
+            borderRadius: '8px',
+            textAlign: 'center'
+          }
+        }}
+      >
+        <h3>Reset Password</h3>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={styles.input}
+        />
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={handleRequestPasswordReset} style={styles.button}>Send Email</button>
+          <button
+            onClick={() => setShowResetModal(false)}
+            style={{ ...styles.button, backgroundColor: '#dc3545', marginLeft: '1rem' }}
+          >
+            Cancel
+          </button>
+        </div>
+        {resetMessage && <p style={{ marginTop: '1rem', color: 'green' }}>{resetMessage}</p>}
+      </Modal>
     </div>
   );
 }
